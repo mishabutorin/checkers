@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" style="-fx-background-color: #000;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.help.StartController">
+    <Button fx:id="startButton" layoutX="173.0" layoutY="104.0" mnemonicParsing="false" prefHeight="65.0" prefWidth="154.0" style="-fx-background-color: #141414; -fx-background-radius: 10px;" text="Play" textFill="WHITE">
+        <font>
+            <Font name="Arial Bold" size="18.0" />
+        </font>
+    </Button>
+    <ImageView fitHeight="200.0" fitWidth="200.0" layoutX="150.0" layoutY="-50.0">
+        <Image url="@../../../assets/logotype.png" />
+    </ImageView>
+    <Button fx:id="exitButton" layoutX="173.0" layoutY="187.0" mnemonicParsing="false" prefHeight="65.0" prefWidth="154.0" style="-fx-background-color: #141414; -fx-background-radius: 10px;" text="Exit" textFill="WHITE">
+        <font>
+            <Font name="Arial Bold" size="18.0" />
+        </font>
+    </Button>
+</AnchorPane>

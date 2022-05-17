@@ -1,0 +1,16 @@
+ .darkMan{
+    -fx-background-image: url('src/main/resources/assets/dark_man.png');
+
+}
+.darkKing{
+    -fx-background-image: url('src/main/resources/assets/dark_king.png');
+
+}
+.lightMan{
+    -fx-background-image: url('src/main/resources/assets/light_man.png');
+
+}
+.lightKing{
+    -fx-background-image: url('src/main/resources/assets/light_king.png');
+
+}
