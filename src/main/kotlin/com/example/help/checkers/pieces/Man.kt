@@ -11,21 +11,20 @@ class Man  //CONSTRUCTOR
     (colour: Colour) : CheckerPiece(colour, "○", "●", 1) {
     //METHODS
     override fun isMoveLegal(gameState: GameState, move: Move): Boolean {
-        return super.isMoveLegal(
-            gameState,
-            move
-        ) && getColour() === Colour.LIGHT
-                && move.isSouth() || getColour() === Colour.DARK
-                && move.isNorth()
+        return super.isMoveLegal(gameState, move)
+                && ((getColour() == Colour.LIGHT && move.isSouth())
+                || getColour() == Colour.DARK && move.isNorth())
     }
 
     override fun makeMove(gameState: GameState, move: Move) {
         super.makeMove(gameState, move)
-        val promotionY = if (getColour() === Colour.LIGHT) 0 else 7
-        if (move.getY2() == promotionY) (gameState as CheckersState).setToPromote(move.getDestination())
+        val promotionY = if (getColour() == Colour.LIGHT) 0 else 7
+        if (move.getY2() == promotionY)
+                (gameState as CheckersState).setToPromote(move.getDestination())
     }
 
     fun promote(gameState: GameState, position: Position) {
         gameState.setPiece(position, King(getColour()))
     }
 }
+

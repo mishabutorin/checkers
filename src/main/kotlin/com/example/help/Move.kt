@@ -2,12 +2,12 @@ package com.example.help
 
 import kotlin.math.abs
 
-class Move (start: Position, destination: Position, ui: UserInterface?) {
+class Move(start: Position, destination: Position, ui: UserInterface?) {
     private var start: Position
     private var destination: Position
 
-    //If sender is null, that indicates the move was not created by a user - it must have been the computer/AI.
-    private var sender: UserInterface?
+    //если sender = null, это означает, что ход должен сделать компьютер
+    private var sender: UserInterface? = null
 
     //CONSTRUCTORS
     constructor(start: Position, destination: Position) : this(start, destination, null)
@@ -31,9 +31,6 @@ class Move (start: Position, destination: Position, ui: UserInterface?) {
         return abs(getY2() - getY1()) == abs(getX2() - getX1())
     }
 
-    /**
-     * How many squared from start to destination? Only works with linear moves (diagonal or straight).
-     */
     fun distance(): Int {
         return abs(getY2() - getY1()).coerceAtLeast(abs(getX2() - getX1()))
     }
@@ -66,7 +63,7 @@ class Move (start: Position, destination: Position, ui: UserInterface?) {
         return sender
     }
 
-    fun setSender(sender: UserInterface) {
+    fun setSender(sender: UserInterface?) {
         this.sender = sender
     }
 }

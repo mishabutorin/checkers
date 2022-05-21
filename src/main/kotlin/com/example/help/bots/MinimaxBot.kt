@@ -5,10 +5,9 @@ import com.example.help.GameState
 import java.util.*
 
 class MinimaxBot : MoveBot {
-    private var maximizingPlayer: Colour? = null
-
+    private lateinit var maximizingPlayer: Colour
     //METHODS
-    override fun getMove(gameState: GameState, maxDepth: Int): GameState {
+    override fun getMove(gameState: GameState, maxDepth: Int): GameState? {
         var chosen: GameState? = null
         maximizingPlayer = gameState.getPlayerTurn()
         if (!gameState.isTerminal()) {
@@ -21,7 +20,7 @@ class MinimaxBot : MoveBot {
                 }
             }
         }
-        return chosen!!
+        return chosen
     }
 
     private fun max(gameState: GameState, depth: Int): Double {

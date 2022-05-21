@@ -1,5 +1,6 @@
 package com.example.help
 
+
 import com.example.help.boards.GUIBoard
 import com.example.help.boards.GUICheckers
 import com.example.help.bots.AlphaBetaBot
@@ -12,16 +13,15 @@ import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.Button
-import javafx.scene.control.Label
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 
 class MainController {
     @FXML
-    lateinit var boardHolder: StackPane
+    lateinit var btnExitGame: Button
 
     @FXML
-    lateinit var lblFooter: Label
+    lateinit var boardHolder: StackPane
 
     //top level buttons
     @FXML
@@ -36,23 +36,27 @@ class MainController {
     @FXML
     lateinit var btnDarkPlayer: Button
 
-    private val depthOptions = arrayOf(1, 2, 3, 4, 5, 6, 7)
+    private var depthOptions = arrayOf(1, 2, 3, 4, 5, 6, 7)
     private var lightBot: MoveBot = MinimaxBot()
     private var darkBot: MoveBot = MinimaxBot()
-    private val humanSymbol = "👨"
-    private val robotSymbol = "🤖"
-    private val aiOptions: Array<MoveBot> = arrayOf(
+    private var humanSymbol = "👨"
+    private var robotSymbol = "🤖"
+    private var aiOptions: Array<MoveBot> = arrayOf(
         MinimaxBot(),
         AlphaBetaBot(),
         OptimalMiniMax()
     )
-    private val game = Game()
+
+    //GETTERS & SETTERS
+    private var game = Game()
     private var aiThread: Thread? = null
     private var lightDepth = 3
     private var darkDepth = 3
-    private lateinit var gui: GUIBoard
+    private var gui: GUIBoard? = null
 
+    //METHODS
     fun initialize() {
+        btnExitGame.setOnAction { Platform.exit() }
         btnLightPlayer.text = humanSymbol
         btnDarkPlayer.text = humanSymbol
         menuCheckersClicked()
@@ -68,40 +72,44 @@ class MainController {
     }
 
     @FXML
+    fun btnExitGameClicked() {
+        Platform.exit()
+    }
+
+    //General game controls
+    @FXML
     fun btnNewGameClicked() {
         game.newGame()
         refreshGUI()
     }
 
     fun makeAIMove() {
-        //disabledButtonList = board modifying buttons. Mustn't allow changes while AI is doing work.
-        val disabledButtonList = arrayOf<Node>(gui, btnNewGame, btnAIMove)
-        //if makeAIMove is called while aiThread is already busy, e.g. user spams play-as-computer button, ignore it.
+        //disabledButtonList = список отключеных кнопок. Нельзя нажимать кнопки, пока работает ИИ.
+        val disabledButtonList = arrayOf<Node?>(gui, btnNewGame, btnAIMove)
         if (aiThread == null) {
-            for (n in disabledButtonList) n.isDisable = true
+            for (n in disabledButtonList) n?.isDisable = true
             aiThread = Thread {
-
-                //get move from move bot - must call the appropriate algorithm for the player
-                val aiMove: GameState =
-                    if (game.getCurrentGameState()!!.getPlayerTurn() == Colour.LIGHT) lightBot.getMove(
-                        game.getCurrentGameState()!!,
-                        lightDepth
-                    ) else darkBot.getMove(game.getCurrentGameState()!!, darkDepth)
+                val aiMove = if (game.getCurrentGameState().getPlayerTurn() == Colour.LIGHT) lightBot.getMove(game.getCurrentGameState(), lightDepth)
+                else darkBot.getMove(game.getCurrentGameState(), darkDepth)
                 //make move
-                aiMove.getLastMove()!!.setSender(gui)
-                game.makeMove(aiMove)
-                gui.repaint()
-                aiThread = null
-                if (currentPlayerIsAI()) Platform.runLater { makeAIMove() }
-                for (n in disabledButtonList) n.isDisable = false
+                if (aiMove != null) {
+                    aiMove.getLastMove()!!.setSender(gui)
+                    game.makeMove(aiMove)
+                    gui?.repaint()
+                    aiThread = null
+                    if (currentPlayerIsAI()) Platform.runLater { makeAIMove() }
+                }
+                for (n in disabledButtonList) if (n != null) {
+                    n.isDisable = false
+                }
             }
             aiThread!!.start()
         }
     }
 
     fun currentPlayerIsAI(): Boolean {
-        return if (game.getCurrentGameState()!!.getPlayerTurn() == Colour.LIGHT
-        ) btnLightPlayer.text == robotSymbol else btnDarkPlayer.text == robotSymbol
+        return if (game.getCurrentGameState().getPlayerTurn() == Colour.LIGHT) btnLightPlayer.text == robotSymbol
+        else btnDarkPlayer.text == robotSymbol
     }
 
     @FXML
@@ -123,14 +131,14 @@ class MainController {
     }
 
     private fun refreshGUI() {
-        gui.repaint()
+        gui?.repaint()
         aiThread = null
         btnLightPlayer.text = "👨"
         btnDarkPlayer.text = "👨"
     }
 
-    //GETTERS & SETTERS
     fun getGame(): Game {
         return game
     }
+
 }

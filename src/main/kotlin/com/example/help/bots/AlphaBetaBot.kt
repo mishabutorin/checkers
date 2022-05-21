@@ -2,14 +2,12 @@ package com.example.help.bots
 
 import com.example.help.Colour
 import com.example.help.GameState
-import java.util.*
 
 class AlphaBetaBot : MoveBot {
-    private var maxDepth = 3
-    private var maximizingPlayer: Colour? = null
-
+    private var maxDepth: Int = 3
+    private lateinit var maximizingPlayer: Colour
     //METHODS
-    override fun getMove(gameState: GameState, maxDepth: Int): GameState {
+    override fun getMove(gameState: GameState, maxDepth: Int): GameState? {
         var chosen: GameState? = null
         maximizingPlayer = gameState.getPlayerTurn()
         if (!gameState.isTerminal()) {
@@ -26,12 +24,13 @@ class AlphaBetaBot : MoveBot {
                 alpha = alpha.coerceAtLeast(value)
             }
         }
-        return chosen!!
+        return chosen
     }
 
     private fun min(gameState: GameState, depth: Int, alpha: Double, beta: Double): Double {
         var beta = beta
-        if (depth == maxDepth || gameState.isTerminal()) return gameState.evaluate(maximizingPlayer)
+        if (depth == maxDepth || gameState.isTerminal())
+            return gameState.evaluate(maximizingPlayer)
         var value = Double.POSITIVE_INFINITY
         for (successor in shuffle(gameState.getSuccessors())) {
             value = value.coerceAtMost(max(successor, depth + 1, alpha, beta))
@@ -43,7 +42,8 @@ class AlphaBetaBot : MoveBot {
 
     private fun max(gameState: GameState, depth: Int, alpha: Double, beta: Double): Double {
         var alpha = alpha
-        if (depth == maxDepth || gameState.isTerminal()) return gameState.evaluate(maximizingPlayer)
+        if (depth == maxDepth || gameState.isTerminal())
+            return gameState.evaluate(maximizingPlayer)
         var value = Double.NEGATIVE_INFINITY
         for (successor in shuffle(gameState.getSuccessors())) {
             value = value.coerceAtLeast(min(successor, depth + 1, alpha, beta))

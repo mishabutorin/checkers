@@ -29,20 +29,22 @@ object PopUp {
             layout.children.add(button)
         }
         val scene = Scene(layout)
-        scene.stylesheets.add("com/example/help/myStyle.css")
+        scene.stylesheets.add("myStyle.css")
         stage.scene = scene
         stage.showAndWait()
-        return if (chosen == null) options[0] else chosen as T
+        return if (chosen == null)
+            options[0]
+        else chosen as T
     }
 
     fun presentMessage(message: String) {
         val box = HBox(Label(message))
         box.styleClass.add("popUpMessage")
         val scene = Scene(box)
-        scene.stylesheets.add("com/example/help/myStyle.css")
+        scene.stylesheets.add("myStyle.css")
         val stage = Stage()
         stage.scene = scene
-        //if the user clicks anywhere other than the popup, close it.
+        //окно закрывается при нажатии на любое место
         stage.focusedProperty()
             .addListener { _: ObservableValue<out Boolean>, _: Boolean, newIsFocusedValue: Boolean
                 -> if (!newIsFocusedValue) stage.close() }

@@ -11,14 +11,15 @@ import javafx.scene.effect.InnerShadow
 import javafx.scene.layout.GridPane
 import javafx.scene.paint.Color
 import javafx.util.Duration
+
 import java.util.*
 
 abstract class GUIBoard(width: Int, height: Int, controller: MainController) : GridPane(), UserInterface {
     private var controller: MainController
-    private var width: Int
-    private var height: Int
-    protected var pieceImages = HashMap<String, String>() //<symbol, style class> (style class has imaged url)
-    private var positions: Queue<Position> = ArrayDeque()
+    protected var width: Int
+    protected var height: Int
+    protected val pieceImages = HashMap<String, String>() //<symbol, style class> (класс стиля имеет отображаемый URL-адрес)
+    private val positions: Queue<Position> = ArrayDeque()
 
     //CONSTRUCTOR
     init {
@@ -36,22 +37,21 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
     //METHODS
     private fun createSquare(x: Int, y: Int): Button {
         val square = Button()
-        square.isPickOnBounds = false //The pick bounds 'wander' upwards is this isn't set. Don't know why though?
+        square.isPickOnBounds = false //Границы выбора "блуждают" вверх - это не задано. Хотя не знаю, почему?
         square.styleClass.setAll("square", "greenFocusHighlight")
         square.styleClass.add(if ((x + y) % 2 == 1) "lightSquare" else "darkSquare")
         square.onAction = EventHandler {
-            if (!isSelectionValid(x, y)) requestFocus() //remove green highlight
+            if (!isSelectionValid(x, y)) requestFocus() //удалить зеленую подсветку
             else {
                 positions.add(Position(x, y))
                 if (positions.size == 2) {
-                    requestFocus() //remove green highlight
+                    requestFocus() //удалить зеленую подсветку
                     val move = Move(positions.remove(), positions.remove(), this)
                     controller.getGame().makeMove(move)
                     repaint()
                     Platform.runLater {
-                        //if next player turn is the computer, call the AI.
-                        if (controller.currentPlayerIsAI())
-                            controller.makeAIMove()
+                        //если следующий ход - ход компьютер, вызывается искусственный интеллект.
+                        if (controller.currentPlayerIsAI()) controller.makeAIMove()
                     }
                 }
             }
@@ -59,17 +59,25 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
         return square
     }
 
+
+
     fun repaint() {
         Platform.runLater {
             for (x in 0 until width) {
                 for (y in 0 until height) {
-                    val piece: Piece? = controller.getGame().getCurrentGameState()?.getPiece(Position(x, y))
+                    val piece: Piece? = controller.getGame().getCurrentGameState().getPiece(Position(x, y))
                     val square = getSquareAt(x, y)
-                    if (pieceImages.containsKey(piece.toString())) {
+                    if (piece == null) {
+                        square.text = null
                         square.styleClass.removeAll(pieceImages.values)
-                        square.styleClass.add(pieceImages[piece.toString()])
-                    } else { //else just use the internal symbol, ie. ♝, ◔, etc
-                        square.text = piece.toString()
+                    } else {
+                        //если есть файл изображения, связанный с этим фрагментом...
+                        if (pieceImages.containsKey(piece.toString())) {
+                            square.styleClass.removeAll(pieceImages.values)
+                            square.styleClass.add(pieceImages[piece.toString()])
+                        } else { //в противном случае просто используйте внутренний символ, т.е. ♝, ◔ и т.д
+                            square.text = piece.toString()
+                        }
                     }
                 }
             }
@@ -86,17 +94,14 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
     }
 
     private fun highlightLastMove() {
-        val move: Move? = controller.getGame().getCurrentGameState()?.getLastMove()
+        val move: Move? = controller.getGame().getCurrentGameState().getLastMove()
         if (move != null) {
             flashColour(getSquareAt(move.getX1(), move.getY1()))
-        }
-        if (move != null) {
             flashColour(getSquareAt(move.getX2(), move.getY2()))
         }
     }
 
     private fun flashColour(button: Button) {
-        //Thanks to Stack Overflow user negate, for help with this code: https://stackoverflow.com/a/41672541
         val s = InnerShadow()
         s.width = 250.0
         button.effect = s
@@ -105,7 +110,6 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
                 cycleDuration = Duration.millis(1000.0)
                 interpolator = Interpolator.EASE_OUT
             }
-
             override fun interpolate(frag: Double) {
                 s.color = Color.GREEN.deriveColor(0.0, 255.0, 255.0, 1 - frag)
             }
@@ -117,13 +121,12 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
     }
 
     private fun isSelectionValid(x: Int, y: Int): Boolean {
-        //Simple validation check.
-        val gameState: GameState = controller.getGame().getCurrentGameState()!!
+        //Простая проверка правильности.
+        val gameState: GameState = controller.getGame().getCurrentGameState()
         val chosen: Piece? = gameState.getPiece(Position(x, y))
-        //The first selection, position.size = 0, can't be an empty square nor enemy piece.
-        //The second selection, position.size = 1, can be whatever.
-        return (chosen?.getColour() != gameState.getPlayerTurn().opponent()
-                    || positions.size == 1)
+        //Первый выбор, position.size = 0, не может быть ни пустым квадратом, ни фигурой противника.
+        //Второй выбор, position.size = 1, может быть любым.
+        return (chosen != null && chosen.getColour() != gameState.getPlayerTurn().opponent()) || positions.size == 1
     }
 
     //GETTERS

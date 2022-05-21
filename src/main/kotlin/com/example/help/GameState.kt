@@ -2,32 +2,30 @@ package com.example.help
 
 import kotlin.system.exitProcess
 
-
 abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) {
     private var prev: GameState? = null
     private var future: GameState? = null
     private var lastMove: Move? = null
-    private var playerTurn = Colour.LIGHT
-    private val squares: Array<Array<Piece>>
+    private var playerTurn: Colour = Colour.LIGHT
+    private val squares: Array<Array<Piece?>>
 
     //CONSTRUCTORS
     init {
-        squares = Array(boardWidth) { (boardHeight) }
-        Piece.value
+        squares = Array(boardWidth) { arrayOfNulls(boardHeight) }
     }
 
     constructor(boardWidth: Int, boardHeight: Int, arrangement: String, pieces: Array<Piece>) : this(
         boardWidth,
         boardHeight
     ) {
-        //create a map linking pieces and their symbols
+        //создание map которая связывает фигуры и их символы
         val symbols = HashMap<String, Piece?>()
         for (piece in pieces) {
             symbols[piece.toString()] = piece
         }
-        symbols[" "] = null //must add a space for empty squares
+        symbols[" "] = null //добавление пустых мест для пустых квадратов
         var pointer = 0
-        //use the sequence of chess symbols to place the correct piece to each square
+        //использование шахматной последовательности, чтобы правильно разместить фигуру на поле
         for (y in boardHeight - 1 downTo 0) {
             for (x in 0 until boardWidth) {
                 var symbol = arrangement[pointer++].toString() + ""
@@ -37,25 +35,20 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
         }
     }
 
-
-
-
-
     //METHODS
     open fun isMoveLegal(move: Move): Boolean {
-        //is the move within the bounds of the board?
+        //находится ли ход в пределах доски?
         for (coordinate in intArrayOf(
             move.getX1(),
             move.getY1(),
             move.getX2(),
             move.getY2()
-        )) if (coordinate < 0 || coordinate >= getBoardWidth())
-            return false
+        )) if (coordinate < 0 || coordinate >= getBoardWidth()) return false
         val piece = getPiece(move.getStart())
-        //does the chosen piece belong to the current player and can it make the requested move?
-        return ((piece != null)
+        //принадлежит ли выбранная фигура текущему игроку и может ли она сделать запрошенный ход?
+        return (piece != null)
                 && (piece.getColour() == getPlayerTurn())
-                && piece.isMoveLegal(this, move))
+                && piece.isMoveLegal(this, move)
     }
 
     open fun makeMove(move: Move) {
@@ -66,7 +59,7 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
     abstract fun postMoveUINotifications(ui: UserInterface)
 
     open fun copy(): GameState {
-        var copy: GameState? = null
+        val copy: GameState
         try {
             copy = this.javaClass.getDeclaredConstructor().newInstance()
             copy.prev = prev
@@ -76,33 +69,38 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
             for (x in squares.indices) {
                 System.arraycopy(squares[x], 0, copy.squares[x], 0, squares[x].size)
             }
-        } catch (e: Exception) {
+        }catch (  e: java.lang.Exception){
             println("ERROR: " + this.javaClass + " must have a no-arg constructor for copy() to work.")
             exitProcess(1)
         }
         return copy
     }
-
-    //Do both players have material on the board?
     open fun isTerminal(): Boolean {
-        //Do both players have material on the board?
+        //Есть ли у обоих игроков материалы на доске?
         var whiteFound = false
         var blackFound = false
         for (position in getAllPossiblePositions()) {
             val piece = getPiece(position)
             if (piece != null) {
-                if (piece.getColour() === Colour.LIGHT) whiteFound = true else blackFound = true
+                if (piece.getColour() == Colour.LIGHT)
+                    whiteFound = true
+                else
+                    blackFound = true
             }
         }
         return !whiteFound || !blackFound
     }
 
-    open fun evaluate(maximizingPlayer: Colour?): Double {
-        //Material balance evaluation function
+    open fun evaluate(maximizingPlayer: Colour): Double {
+        //Функция оценки материального баланса
         var score = 0
         for (position in getAllPossiblePositions()) {
             val piece = getPiece(position)
-            if (piece != null) if (piece.getColour() == maximizingPlayer) score += piece.getValue() else score -= piece.getValue()
+            if (piece != null)
+                if (piece.getColour() == maximizingPlayer)
+                    score += piece.getValue()
+                else
+                    score -= piece.getValue()
         }
         return score.toDouble()
     }
@@ -119,7 +117,7 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
     }
 
     private fun getPlayersPositions(playerColour: Colour): ArrayList<Position> {
-        val positions = ArrayList<Position>()
+        val positions: ArrayList<Position> = ArrayList()
         for (position in getAllPossiblePositions()) {
             val piece = getPiece(position)
             if (piece != null && piece.getColour() == playerColour)
@@ -139,15 +137,15 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
     }
 
     override fun toString(): String {
-        val files = "  a b c d e f g h" //the column headings
+        val files = "  a b c d e f g h" //заголовки столбцов
         val sb = StringBuilder(
             """
-                  $files
-                  
-                  """.trimIndent()
+              $files
+              
+              """.trimIndent()
         )
         for (y in 7 downTo 0) {
-            sb.append(y + 1).append("|") //add the left-side ranks (row numbers)
+            sb.append(y + 1).append("|") //добавление рядов слева (номера строк)
             for (x in 0..7) {
                 if (squares[x][y] != null) {
                     sb.append(squares[x][y]).append("|")
@@ -155,7 +153,7 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
                     sb.append(" |")
                 }
             }
-            sb.append(y).append(1).append("\n") //add the right-side ranks (row numbers)
+            sb.append(y).append(1).append("\n") //добавление рядов справа (номера строк)
         }
         sb.append(files)
         return sb.toString()
@@ -166,12 +164,12 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
         return prev
     }
 
-    fun setPrev(prev: GameState?) {
+    fun setPrev(prev: GameState) {
         this.prev = prev
     }
 
     fun setFuture(future: GameState?) {
-        this.future = future
+            this.future = future
     }
 
     fun getLastMove(): Move? {
@@ -209,4 +207,5 @@ abstract class GameState constructor(boardWidth: Int = 8, boardHeight: Int = 8) 
     fun getBoardHeight(): Int {
         return squares[0].size
     }
+
 }

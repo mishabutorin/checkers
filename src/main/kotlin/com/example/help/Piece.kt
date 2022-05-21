@@ -1,21 +1,20 @@
 package com.example.help
 
-public abstract class Piece {
-    private lateinit var colour: Colour
-    private lateinit var lightSymbol: String
-    private lateinit var darkSymbol: String
-    protected var value = 0
+
+abstract class Piece protected constructor(colour: Colour, lightSymbol: String, darkSymbol: String, value: Int) {
+    private val colour: Colour
+    private var lightSymbol: String
+    private var darkSymbol: String
+    private var value: Int
 
     //CONSTRUCTOR
-    protected open fun Piece(colour: Colour, lightSymbol: String, darkSymbol: String, value: Int) {
+    init {
         this.colour = colour
         this.lightSymbol = lightSymbol
         this.darkSymbol = darkSymbol
         this.value = value
     }
 
-
-    //METHODS
     abstract fun isMoveLegal(gameState: GameState, move: Move): Boolean
     abstract fun makeMove(gameState: GameState, move: Move)
     override fun toString(): String {
@@ -28,7 +27,7 @@ public abstract class Piece {
             val move = Move(myPosition, position)
             if (gameState.isMoveLegal(move)) {
                 val copy = gameState.copy()
-                copy.setPrev(gameState) //connect copy to the chain of boards.
+                copy.setPrev(gameState) //подключение копии шашки к дугих копиям на поле
                 copy.makeMove(move)
                 successors.add(copy)
             }
@@ -36,8 +35,6 @@ public abstract class Piece {
         return successors
     }
 
-
-    @JvmName("getValue1")
     open fun getValue(): Int {
         return value
     }
@@ -45,5 +42,6 @@ public abstract class Piece {
     open fun getColour(): Colour {
         return colour
     }
-
 }
+
+

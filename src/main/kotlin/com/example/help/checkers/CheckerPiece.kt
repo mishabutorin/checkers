@@ -7,17 +7,14 @@ protected constructor(colour: Colour, whiteSymbol: String, blackSymbol: String, 
     Piece(colour, whiteSymbol, blackSymbol, value) {
     //METHODS
     override fun isMoveLegal(gameState: GameState, move: Move): Boolean {
-        val between = gameState.getPiece(getBetweenSquare(move))
-        return (move.isDiagonal()
-                && (gameState.getPiece(move.getDestination()) == null)
-                && ((move.distance() == 1)
-                || ((move.distance() == 2) && (between != null)
-                && (between.getColour() === getColour().opponent())))
-                && !(gameState as CheckersState).capturedPieces.contains(
-            getBetweenSquare(move)
-        ))
-    }
+        val between: Piece? = gameState.getPiece(getBetweenSquare(move))
 
+        return move.isDiagonal()
+                && gameState.getPiece(move.getDestination()) == null
+                && (move.distance() == 1
+                || (move.distance() == 2 && between != null && between.getColour() == getColour().opponent()
+                && !(gameState as CheckersState).capturedPieces.contains(getBetweenSquare(move))))
+    }
 
     override fun makeMove(gameState: GameState, move: Move) {
         gameState.setPiece(move.getDestination(), gameState.getPiece(move.getStart()))
@@ -26,8 +23,8 @@ protected constructor(colour: Colour, whiteSymbol: String, blackSymbol: String, 
     }
 
     private fun getBetweenSquare(move: Move): Position {
-        val x = (move.getX2() + move.getX1()) / 2
-        val y = (move.getY2() + move.getY1()) / 2
+        val x: Int = (move.getX2() + move.getX1()) / 2
+        val y: Int = (move.getY2() + move.getY1()) / 2
         return Position(x, y)
     }
 }
