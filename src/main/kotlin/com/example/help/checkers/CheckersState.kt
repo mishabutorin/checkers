@@ -102,7 +102,7 @@ class CheckersState constructor(
         else
             super.evaluate(maximizingPlayer) + if (getPlayerTurn() == maximizingPlayer) capturedPieces.size
             else -capturedPieces.size //сколь угодно большое число
-//super.evaluation обеспечивает простой материальный баланс (союзники - враги), но в шашках
+//super.evaluation обеспечивает простой материальный баланс (союзники - враги)
 // некоторые фигуры на доске были захвачены, что делает его еще более выгодным для текущего игрока.
     }
 
