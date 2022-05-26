@@ -37,7 +37,7 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
     //METHODS
     private fun createSquare(x: Int, y: Int): Button {
         val square = Button()
-        square.isPickOnBounds = false //Границы выбора "блуждают" вверх - это не задано. Хотя не знаю, почему?
+        square.isPickOnBounds = false
         square.styleClass.setAll("square", "greenFocusHighlight")
         square.styleClass.add(if ((x + y) % 2 == 1) "lightSquare" else "darkSquare")
         square.onAction = EventHandler {
@@ -50,7 +50,7 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
                     controller.getGame().makeMove(move)
                     repaint()
                     Platform.runLater {
-                        //если следующий ход - ход компьютер, вызывается искусственный интеллект.
+                        //если следующий ход - ход компьютера, вызывается искусственный интеллект.
                         if (controller.currentPlayerIsAI()) controller.makeAIMove()
                     }
                 }
@@ -75,7 +75,7 @@ abstract class GUIBoard(width: Int, height: Int, controller: MainController) : G
                         if (pieceImages.containsKey(piece.toString())) {
                             square.styleClass.removeAll(pieceImages.values)
                             square.styleClass.add(pieceImages[piece.toString()])
-                        } else { //в противном случае просто используйте внутренний символ, т.е. ♝, ◔ и т.д
+                        } else { //в противном случае просто используйте внутренний символ
                             square.text = piece.toString()
                         }
                     }

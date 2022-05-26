@@ -17,8 +17,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 
 class MainController {
-    @FXML
-    lateinit var btnExitGame: Button
 
     @FXML
     lateinit var boardHolder: StackPane
@@ -56,7 +54,6 @@ class MainController {
 
     //METHODS
     fun initialize() {
-        btnExitGame.setOnAction { Platform.exit() }
         btnLightPlayer.text = humanSymbol
         btnDarkPlayer.text = humanSymbol
         menuCheckersClicked()
@@ -69,11 +66,6 @@ class MainController {
         boardHolder.children.setAll(gui)
         game.setCurrentGameState(CheckersState())
         refreshGUI()
-    }
-
-    @FXML
-    fun btnExitGameClicked() {
-        Platform.exit()
     }
 
     //General game controls
